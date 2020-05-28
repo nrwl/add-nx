@@ -1,6 +1,25 @@
 {
   "version": 1,
-  "projects": {},
+  "projects": {
+    "make-angular-cli-faster": {
+      "root": "projects/make-angular-cli-faster",
+      "sourceRoot": "projects/make-angular-cli-faster/src",
+      "projectType": "library",
+      "schematics": {},
+      "architect": {
+        "build": {
+          "builder": "@nrwl/node:package",
+          "options": {
+            "outputPath": "dist/projects/make-angular-cli-faster",
+            "tsConfig": "projects/make-angular-cli-faster/tsconfig.lib.json",
+            "packageJson": "projects/make-angular-cli-faster/package.json",
+            "main": "projects/make-angular-cli-faster/src/index.ts",
+            "assets": ["projects/make-angular-cli-faster/LICENSE","projects/make-angular-cli-faster/*.md"]
+          }
+        }
+      }
+    }
+  },
   "cli": {
     "defaultCollection": "@nrwl/workspace"
   },

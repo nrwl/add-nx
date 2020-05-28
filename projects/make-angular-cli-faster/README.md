@@ -1,4 +1,4 @@
-# Easy Ways to Add Nx to Your Workflow
+# `> npx make-angular-cli-faster`
 
 <p align="center"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx.png" width="600"></p>
 
@@ -11,12 +11,9 @@
 
 </div>
 
-A collection of packages helping you to add Nx and Nx Cloud to your existing projects.
-
-See [https://github.com/nrwl/nx](https://github.com/nrwl/nx) for more information.
+An easy way to add Nx computation caching to an Angular CLI project without changing anything about the project.
 
 
-## Packages
+## Learn More
 
-* `> npx make-angular-cli-faster`--adds Nx to an Angular CLI project without changing anything about the project.
-
+* See [https://github.com/nrwl/nx](https://github.com/nrwl/nx) to learn more about Nx.

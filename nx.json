@@ -1,5 +1,5 @@
 {
-  "npmScope": "add-nx-to-cli",
+  "npmScope": "add-nx",
   "implicitDependencies": {
     "workspace.json": "*",
     "package.json": {
@@ -12,11 +12,22 @@
   },
   "tasksRunnerOptions": {
     "default": {
-      "runner": "@nrwl/workspace/tasks-runners/default",
+      "runner": "@nrwl/nx-cloud",
       "options": {
-        "cacheableOperations": ["build", "lint", "test", "e2e"]
+        "accessToken": "YzA0Mjk0MjQtNzEzZS00YmE3LTlmZjUtODI1MzQxMjJlMzgxfHJlYWQ=",
+        "cacheableOperations": ["build", "test", "lint", "e2e"],
+        "canTrackAnalytics": false,
+        "showUsageWarnings": true
       }
     }
   },
-  "projects": {}
+  "workspaceLayout": {
+    "appsDir": "projects",
+    "libsDir": "projects"
+  },
+  "projects": {
+    "make-angular-cli-faster": {
+      "tags": []
+    }
+  }
 }

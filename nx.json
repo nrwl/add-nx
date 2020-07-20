@@ -6,9 +6,9 @@
       "dependencies": "*",
       "devDependencies": "*"
     },
-    "tsconfig.json": "*",
     "tslint.json": "*",
-    "nx.json": "*"
+    "nx.json": "*",
+    "tsconfig.base.json": "*"
   },
   "tasksRunnerOptions": {
     "default": {
@@ -29,5 +29,8 @@
     "make-angular-cli-faster": {
       "tags": []
     }
+  },
+  "affected": {
+    "defaultBase": "master"
   }
 }

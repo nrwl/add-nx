@@ -55,7 +55,7 @@ function addNxCloud() {
 }
 
 async function main() {
-  const version = parsedArgs.version ? parsedArgs.version : `^9.4.0`;
+  const version = parsedArgs.version ? parsedArgs.version : `^10.0.0`;
 
   const output = require('@nrwl/workspace/src/utils/output').output;
   output.log({ title: 'Nx initialization' });

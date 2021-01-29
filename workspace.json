@@ -1,14 +1,14 @@
 {
-  "version": 1,
+  "version": 2,
   "projects": {
     "make-angular-cli-faster": {
       "root": "projects/make-angular-cli-faster",
       "sourceRoot": "projects/make-angular-cli-faster/src",
       "projectType": "library",
-      "schematics": {},
-      "architect": {
+      "generators": {},
+      "targets": {
         "build": {
-          "builder": "@nrwl/node:package",
+          "executor": "@nrwl/node:package",
           "options": {
             "outputPath": "dist/projects/make-angular-cli-faster",
             "tsConfig": "projects/make-angular-cli-faster/tsconfig.lib.json",
@@ -20,9 +20,55 @@
             ],
             "srcRootForCompilationRoot": "projects/make-angular-cli-faster/src"
           },
-          "outputs": [
-            "{options.outputPath}"
-          ]
+          "outputs": ["{options.outputPath}"]
+        }
+      }
+    },
+    "add-nx-to-monorepo": {
+      "root": "projects/add-nx-to-monorepo",
+      "sourceRoot": "projects/add-nx-to-monorepo/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["projects/add-nx-to-monorepo/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/projects/add-nx-to-monorepo"],
+          "options": {
+            "jestConfig": "projects/add-nx-to-monorepo/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/projects/add-nx-to-monorepo",
+            "tsConfig": "projects/add-nx-to-monorepo/tsconfig.lib.json",
+            "packageJson": "projects/add-nx-to-monorepo/package.json",
+            "main": "projects/add-nx-to-monorepo/src/index.ts",
+            "assets": ["projects/add-nx-to-monorepo/*.md"]
+          }
+        },
+        "test-again-repo": {
+          "executor": "@nrwl/workspace:run-commands",
+          "options": {
+            "commands": [
+              {
+                "command": "nx build add-nx-to-monorepo",
+                "forwardAllArgs": false
+              },
+              {
+                "command": "export JS_SCRIPT=$PWD/dist/projects/add-nx-to-monorepo/src/add-nx-to-monorepo.js && cd {args.repo} && echo $PWD && node $JS_SCRIPT",
+                "forwardAllArgs": false
+              }
+            ],
+            "parallel": false
+          }
         }
       }
     }
@@ -30,7 +76,7 @@
   "cli": {
     "defaultCollection": "@nrwl/workspace"
   },
-  "schematics": {
+  "generators": {
     "@nrwl/workspace": {
       "library": {
         "linter": "eslint"

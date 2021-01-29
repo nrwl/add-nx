@@ -29,6 +29,9 @@
   "projects": {
     "make-angular-cli-faster": {
       "tags": []
+    },
+    "add-nx-to-monorepo": {
+      "tags": []
     }
   },
   "affected": {

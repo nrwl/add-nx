@@ -16,7 +16,10 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "make-angular-cli-faster": ["projects/make-angular-cli-faster/src/index.ts"]
+      "make-angular-cli-faster": [
+        "projects/make-angular-cli-faster/src/index.ts"
+      ],
+      "@add-nx/add-nx-to-monorepo": ["projects/add-nx-to-monorepo/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

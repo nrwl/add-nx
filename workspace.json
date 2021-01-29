@@ -14,8 +14,15 @@
             "tsConfig": "projects/make-angular-cli-faster/tsconfig.lib.json",
             "packageJson": "projects/make-angular-cli-faster/package.json",
             "main": "projects/make-angular-cli-faster/src/index.ts",
-            "assets": ["projects/make-angular-cli-faster/LICENSE","projects/make-angular-cli-faster/*.md"]
-          }
+            "assets": [
+              "projects/make-angular-cli-faster/LICENSE",
+              "projects/make-angular-cli-faster/*.md"
+            ],
+            "srcRootForCompilationRoot": "projects/make-angular-cli-faster/src"
+          },
+          "outputs": [
+            "{options.outputPath}"
+          ]
         }
       }
     }

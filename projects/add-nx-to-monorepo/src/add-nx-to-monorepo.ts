@@ -175,7 +175,7 @@ function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   };
 
   pds.forEach((f) => {
-    res.projects[f.name] = { root: f.dir, type: 'library' };
+    res.projects[f.name] = { root: normalizePath(f.dir), type: 'library' };
   });
 
   fs.writeFileSync(`${repoRoot}/workspace.json`, JSON.stringify(res, null, 2));
@@ -214,13 +214,18 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   fs.writeFileSync(`${repoRoot}/nx.json`, JSON.stringify(res, null, 2));
 }
 
+function normalizeFilePath(f: string) {
+  return path.extname(f) != ''
+    ? f.substr(0, f.length - path.extname(f).length)
+    : f;
+}
 function createOrUpdateTsconfig(repoRoot: string, pds: ProjectDesc[]) {
   const mappings = {};
   pds.forEach((p) => {
-    mappings[p.name] = p.mainFilePath
-      ? path.join(p.dir, p.mainFilePath)
-      : p.dir;
-    mappings[`${p.name}/*`] = `${p.dir}/*`;
+    mappings[p.name] = [
+      normalizePath(p.mainFilePath ? normalizeFilePath(p.mainFilePath) : p.dir),
+    ];
+    mappings[`${p.name}/*`] = [`${normalizePath(p.dir)}/*`];
   });
 
   let tsconfigFileName = getTsConfigFileName(repoRoot);
@@ -332,4 +337,12 @@ function printFinalMessage(repoRoot) {
       `- Learn more at https://nx.dev/react`,
     ],
   });
+}
+
+function removeWindowsDriveLetter(osSpecificPath: string): string {
+  return osSpecificPath.replace(/^[A-Z]:/, '');
+}
+
+function normalizePath(osSpecificPath: string): string {
+  return removeWindowsDriveLetter(osSpecificPath).split(path.sep).join('/');
 }

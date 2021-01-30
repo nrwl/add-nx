@@ -238,7 +238,7 @@ function createOrUpdateTsconfig(repoRoot: string, pds: ProjectDesc[]) {
     json = {};
   }
   if (json.compilerOptions && json.compilerOptions.paths) {
-    json.compilerOptions.paths = { ...json.compilerOptions.paths, mappings };
+    json.compilerOptions.paths = { ...json.compilerOptions.paths, ...mappings };
   } else {
     if (!json.compilerOptions) {
       json.compilerOptions = {};

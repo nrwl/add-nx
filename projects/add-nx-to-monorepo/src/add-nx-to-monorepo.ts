@@ -287,6 +287,7 @@ function getTsConfigFileName(repoRoot: string) {
 // add dependencies
 function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
   const json = readJsonFile(repoRoot, `package.json`);
+  if (!json.dependencies) json.dependencies = {};
   if (!json.devDependencies) json.devDependencies = {};
   json.devDependencies['@nrwl/workspace'] = 'latest';
   json.devDependencies['@nrwl/cli'] = 'latest';

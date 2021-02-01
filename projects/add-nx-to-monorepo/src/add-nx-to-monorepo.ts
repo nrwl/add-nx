@@ -18,13 +18,13 @@ export async function addNxToMonorepo() {
   const repoRoot = process.cwd();
 
   output.log({
-    title: `Adding Nx to "${repoRoot}"`,
+    title: `Adding Nx to "${repoRoot}"`
   });
 
   const useCloud = await askAboutNxCloud();
 
   output.log({
-    title: `Analyzing the source code and creating configuration files`,
+    title: `Analyzing the source code and creating configuration files`
   });
 
   const packageJsonFiles = allProjectPackageJsonFiles(repoRoot);
@@ -63,16 +63,16 @@ async function askAboutNxCloud() {
           {
             value: 'yes',
             name:
-              'Yes [Faster builds, run details, Github integration. Learn more at https://nx.app]',
+              'Yes [Faster builds, run details, Github integration. Learn more at https://nx.app]'
           },
 
           {
             value: 'no',
-            name: 'No',
-          },
+            name: 'No'
+          }
         ],
-        default: 'no',
-      },
+        default: 'no'
+      }
     ])
     .then((a: { NxCloud: 'yes' | 'no' }) => a.NxCloud === 'yes');
 }
@@ -109,10 +109,12 @@ function allPackageJsonFiles(repoRoot: string, dirName: string) {
           res = [...res, ...allPackageJsonFiles(repoRoot, child)];
         }
         // eslint-disable-next-line no-empty
-      } catch (e) {}
+      } catch (e) {
+      }
     });
     // eslint-disable-next-line no-empty
-  } catch (e) {}
+  } catch (e) {
+  }
   return res;
 }
 
@@ -121,7 +123,8 @@ function getIgnoredGlobs(repoRoot: string) {
   try {
     ig.add(fs.readFileSync(`${repoRoot}/.gitignore`).toString());
     // eslint-disable-next-line no-empty
-  } catch (e) {}
+  } catch (e) {
+  }
   return ig;
 }
 
@@ -146,13 +149,13 @@ function createProjectDesc(
       res.push({
         name: packageJson.name,
         dir,
-        mainFilePath: path.join(dir, packageJson.main),
+        mainFilePath: path.join(dir, packageJson.main)
       });
     } else if (packageJson.index) {
       res.push({
         name: packageJson.name,
         dir,
-        mainFilePath: path.join(dir, packageJson.index),
+        mainFilePath: path.join(dir, packageJson.index)
       });
     } else {
       res.push({ name: packageJson.name, dir, mainFilePath: null });
@@ -171,7 +174,7 @@ function readJsonFile(repoRoot: string, file: string) {
 function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   const res = {
     version: 2,
-    projects: {},
+    projects: {}
   };
 
   pds.forEach((f) => {
@@ -189,22 +192,22 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
       'workspace.json': '*',
       'package.json': {
         dependencies: '*',
-        devDependencies: '*',
+        devDependencies: '*'
       },
-      'nx.json': '*',
+      'nx.json': '*'
     },
     tasksRunnerOptions: {
       default: {
         runner: '@nrwl/workspace/tasks-runners/default',
         options: {
-          cacheableOperations: ['build', 'test', 'lint', 'package'],
-        },
-      },
+          cacheableOperations: ['build', 'test', 'lint', 'package']
+        }
+      }
     },
     projects: {},
     affected: {
-      defaultBase: 'master',
-    },
+      defaultBase: deduceDefaultBase()
+    }
   };
 
   pds.forEach((f) => {
@@ -214,16 +217,35 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   fs.writeFileSync(`${repoRoot}/nx.json`, JSON.stringify(res, null, 2));
 }
 
+function deduceDefaultBase() {
+  try {
+    if (execSync(`git rev-parse --verify main`).toString().indexOf(`fatal`) > -1) {
+      throw new Error(`skipped`);
+    }
+    return 'main';
+  } catch (e) {
+    try {
+      if (execSync(`git rev-parse --verify dev`).toString().indexOf(`fatal`) > -1) {
+        throw new Error(`skipped`);
+      }
+      return 'dev';
+    } catch (e) {
+      return 'master';
+    }
+  }
+}
+
 function normalizeFilePath(f: string) {
   return path.extname(f) != ''
     ? f.substr(0, f.length - path.extname(f).length)
     : f;
 }
+
 function createOrUpdateTsconfig(repoRoot: string, pds: ProjectDesc[]) {
   const mappings = {};
   pds.forEach((p) => {
     mappings[p.name] = [
-      normalizePath(p.mainFilePath ? normalizeFilePath(p.mainFilePath) : p.dir),
+      normalizePath(p.mainFilePath ? normalizeFilePath(p.mainFilePath) : p.dir)
     ];
     mappings[`${p.name}/*`] = [`${normalizePath(p.dir)}/*`];
   });
@@ -286,7 +308,7 @@ function initCloud(repoRoot: string) {
   execSync(
     `${getPackageManagerCommand(repoRoot).exec} nx g @nrwl/nx-cloud:init`,
     {
-      stdio: [0, 1, 2],
+      stdio: [0, 1, 2]
     }
   );
 }
@@ -300,26 +322,26 @@ function getPackageManagerCommand(
   const packageManager = fs.existsSync(path.join(repoRoot, 'yarn.lock'))
     ? 'yarn'
     : fs.existsSync(path.join(repoRoot, 'pnpm-lock.yaml'))
-    ? 'pnpm'
-    : 'npm';
+      ? 'pnpm'
+      : 'npm';
 
   switch (packageManager) {
     case 'yarn':
       return {
         install: 'yarn',
-        exec: 'yarn',
+        exec: 'yarn'
       };
 
     case 'pnpm':
       return {
         install: 'pnpm install --no-frozen-lockfile', // explicitly disable in case of CI
-        exec: 'pnpx',
+        exec: 'pnpx'
       };
 
     case 'npm':
       return {
         install: 'npm install --legacy-peer-deps',
-        exec: 'npx',
+        exec: 'npx'
       };
   }
 }
@@ -334,8 +356,8 @@ function printFinalMessage(repoRoot) {
       } nx run-many --target=build --all --parallel" to run the build script for every project in the monorepo.`,
       `- Run it again to replay the cached computation.`,
       `- Run "nx dep-graph" to see the structure of the monorepo.`,
-      `- Learn more at https://nx.dev/migration/adding-to-monorepo`,
-    ],
+      `- Learn more at https://nx.dev/migration/adding-to-monorepo`
+    ]
   });
 }
 

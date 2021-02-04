@@ -19,7 +19,10 @@
       "make-angular-cli-faster": [
         "projects/make-angular-cli-faster/src/index.ts"
       ],
-      "@add-nx/add-nx-to-monorepo": ["projects/add-nx-to-monorepo/src/index.ts"]
+      "@add-nx/add-nx-to-monorepo": [
+        "projects/add-nx-to-monorepo/src/index.ts"
+      ],
+      "cra-to-nx": ["projects/cra-to-nx/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

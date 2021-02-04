@@ -71,6 +71,44 @@
           }
         }
       }
+    },
+    "cra-to-nx": {
+      "root": "projects/cra-to-nx",
+      "sourceRoot": "projects/cra-to-nx/src",
+      "projectType": "library",
+      "targets": {
+        "lint": {
+          "executor": "@nrwl/linter:eslint",
+          "options": {
+            "lintFilePatterns": ["projects/cra-to-nx/**/*.ts"]
+          }
+        },
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/projects/cra-to-nx"],
+          "options": {
+            "jestConfig": "projects/cra-to-nx/jest.config.js",
+            "passWithNoTests": true
+          }
+        },
+        "build": {
+          "executor": "@nrwl/node:package",
+          "outputs": ["{options.outputPath}"],
+          "options": {
+            "outputPath": "dist/projects/cra-to-nx",
+            "tsConfig": "projects/cra-to-nx/tsconfig.lib.json",
+            "packageJson": "projects/cra-to-nx/package.json",
+            "main": "projects/cra-to-nx/src/index.ts",
+            "assets": ["projects/cra-to-nx/*.md"]
+          }
+        },
+        "publish": {
+          "builder": "@nrwl/workspace:run-commands",
+          "options": {
+            "command": "node tools/scripts/publish.js cra-to-nx"
+          }
+        }
+      }
     }
   },
   "cli": {

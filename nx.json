@@ -2,10 +2,7 @@
   "npmScope": "add-nx",
   "implicitDependencies": {
     "workspace.json": "*",
-    "package.json": {
-      "dependencies": "*",
-      "devDependencies": "*"
-    },
+    "package.json": { "dependencies": "*", "devDependencies": "*" },
     "tslint.json": "*",
     "nx.json": "*",
     "tsconfig.base.json": "*",
@@ -22,19 +19,11 @@
       }
     }
   },
-  "workspaceLayout": {
-    "appsDir": "projects",
-    "libsDir": "projects"
-  },
+  "workspaceLayout": { "appsDir": "projects", "libsDir": "projects" },
   "projects": {
-    "make-angular-cli-faster": {
-      "tags": []
-    },
-    "add-nx-to-monorepo": {
-      "tags": []
-    }
+    "make-angular-cli-faster": { "tags": [] },
+    "add-nx-to-monorepo": { "tags": [] },
+    "cra-to-nx": { "tags": [] }
   },
-  "affected": {
-    "defaultBase": "master"
-  }
+  "affected": { "defaultBase": "master" }
 }

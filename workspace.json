@@ -54,7 +54,7 @@
             "assets": ["projects/add-nx-to-monorepo/*.md"]
           }
         },
-        "test-again-repo": {
+        "test-against-repo": {
           "executor": "@nrwl/workspace:run-commands",
           "options": {
             "commands": [

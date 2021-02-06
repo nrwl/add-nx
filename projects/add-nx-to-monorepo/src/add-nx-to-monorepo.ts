@@ -184,8 +184,20 @@ function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   fs.writeFileSync(`${repoRoot}/workspace.json`, JSON.stringify(res, null, 2));
 }
 
+
+function detectWorkspaceScope(repoRoot: string) {
+  let scope = readJsonFile(repoRoot, `package.json`).name;
+  if (! scope) return "undetermined";
+
+  if (scope.startsWith('@')) {
+    scope = scope.substring(1);
+  }
+
+  return scope.split("/")[0];
+}
+
 function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
-  const scope = readJsonFile(repoRoot, `package.json`).name;
+  const scope = detectWorkspaceScope(repoRoot);
   const res = {
     npmScope: scope,
     implicitDependencies: {
@@ -219,15 +231,11 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
 
 function deduceDefaultBase() {
   try {
-    if (execSync(`git rev-parse --verify main`).toString().indexOf(`fatal`) > -1) {
-      throw new Error(`skipped`);
-    }
+    execSync(`git rev-parse --verify main`, {stdio: ['ignore', 'ignore', 'ignore']});
     return 'main';
   } catch (e) {
     try {
-      if (execSync(`git rev-parse --verify dev`).toString().indexOf(`fatal`) > -1) {
-        throw new Error(`skipped`);
-      }
+      execSync(`git rev-parse --verify dev`, {stdio: ['ignore', 'ignore', 'ignore']});
       return 'dev';
     } catch (e) {
       return 'master';
@@ -266,6 +274,7 @@ function createOrUpdateTsconfig(repoRoot: string, pds: ProjectDesc[]) {
       json.compilerOptions = {};
     }
     json.compilerOptions.paths = mappings;
+    json.compilerOptions.baseUrl ='.';
   }
   fs.writeFileSync(tsconfigFileName, JSON.stringify(json, null, 2));
 }
@@ -291,7 +300,7 @@ function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
   json.devDependencies['@nrwl/workspace'] = 'latest';
   json.devDependencies['@nrwl/cli'] = 'latest';
   json.devDependencies['@nrwl/tao'] = 'latest';
-  if (!json.dependencies['typescript'] && !json.devDependencies['typescript']) {
+  if (!(json.dependencies && json.dependencies['typescript']) && !json.devDependencies['typescript']) {
     json.devDependencies['typescript'] = '4.1.3';
   }
   if (useCloud) {

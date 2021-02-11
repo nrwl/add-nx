@@ -212,7 +212,8 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
       default: {
         runner: '@nrwl/workspace/tasks-runners/default',
         options: {
-          cacheableOperations: ['build', 'test', 'lint', 'package']
+          cacheableOperations: ['build', 'test', 'lint', 'package', 'prepare'],
+          strictlyOrderedTargets: ['build', 'package', 'prepare'],
         }
       }
     },
@@ -238,7 +239,12 @@ function deduceDefaultBase() {
       execSync(`git rev-parse --verify dev`, {stdio: ['ignore', 'ignore', 'ignore']});
       return 'dev';
     } catch (e) {
-      return 'master';
+      try {
+        execSync(`git rev-parse --verify next`, {stdio: ['ignore', 'ignore', 'ignore']});
+        return 'next';
+      } catch (e) {
+        return 'master';
+      }
     }
   }
 }

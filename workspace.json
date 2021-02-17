@@ -20,7 +20,9 @@
             ],
             "srcRootForCompilationRoot": "projects/make-angular-cli-faster/src"
           },
-          "outputs": ["{options.outputPath}"]
+          "outputs": [
+            "{options.outputPath}"
+          ]
         }
       }
     },
@@ -32,12 +34,16 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["projects/add-nx-to-monorepo/**/*.ts"]
+            "lintFilePatterns": [
+              "projects/add-nx-to-monorepo/**/*.ts"
+            ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/projects/add-nx-to-monorepo"],
+          "outputs": [
+            "coverage/projects/add-nx-to-monorepo"
+          ],
           "options": {
             "jestConfig": "projects/add-nx-to-monorepo/jest.config.js",
             "passWithNoTests": true
@@ -45,13 +51,18 @@
         },
         "build": {
           "executor": "@nrwl/node:package",
-          "outputs": ["{options.outputPath}"],
+          "outputs": [
+            "{options.outputPath}"
+          ],
           "options": {
             "outputPath": "dist/projects/add-nx-to-monorepo",
             "tsConfig": "projects/add-nx-to-monorepo/tsconfig.lib.json",
             "packageJson": "projects/add-nx-to-monorepo/package.json",
             "main": "projects/add-nx-to-monorepo/src/index.ts",
-            "assets": ["projects/add-nx-to-monorepo/*.md"]
+            "assets": [
+              "projects/add-nx-to-monorepo/LICENSE",
+              "projects/add-nx-to-monorepo/*.md"
+            ]
           }
         },
         "test-against-repo": {
@@ -80,12 +91,16 @@
         "lint": {
           "executor": "@nrwl/linter:eslint",
           "options": {
-            "lintFilePatterns": ["projects/cra-to-nx/**/*.ts"]
+            "lintFilePatterns": [
+              "projects/cra-to-nx/**/*.ts"
+            ]
           }
         },
         "test": {
           "executor": "@nrwl/jest:jest",
-          "outputs": ["coverage/projects/cra-to-nx"],
+          "outputs": [
+            "coverage/projects/cra-to-nx"
+          ],
           "options": {
             "jestConfig": "projects/cra-to-nx/jest.config.js",
             "passWithNoTests": true
@@ -93,13 +108,17 @@
         },
         "build": {
           "executor": "@nrwl/node:package",
-          "outputs": ["{options.outputPath}"],
+          "outputs": [
+            "{options.outputPath}"
+          ],
           "options": {
             "outputPath": "dist/projects/cra-to-nx",
             "tsConfig": "projects/cra-to-nx/tsconfig.lib.json",
             "packageJson": "projects/cra-to-nx/package.json",
             "main": "projects/cra-to-nx/src/index.ts",
-            "assets": ["projects/cra-to-nx/*.md"]
+            "assets": [
+              "projects/cra-to-nx/*.md"
+            ]
           }
         },
         "publish": {

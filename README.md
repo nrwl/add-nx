@@ -17,6 +17,8 @@ See [https://github.com/nrwl/nx](https://github.com/nrwl/nx) for more informatio
 
 ## Packages
 
+- `> npx add-nx-to-monorepo`--adds Nx to an existing Lerna/Yarn/PNPM monorepo. [Read more](https://nx.dev/latest/react/migration/adding-to-monorepo).
+  
 - `> npx make-angular-cli-faster`--adds Nx to an Angular CLI project without changing anything about the project.
 
 - `> npx cra-to-nx` -- Tool for converting CRA project to Nx workspace. [Read more](https://github.com/nrwl/add-nx/blob/master/projects/cra-to-nx/README.md).

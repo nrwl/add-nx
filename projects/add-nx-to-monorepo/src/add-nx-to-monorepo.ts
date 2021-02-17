@@ -18,13 +18,13 @@ export async function addNxToMonorepo() {
   const repoRoot = process.cwd();
 
   output.log({
-    title: `Adding Nx to "${repoRoot}"`
+    title: `🐳 Nx initialization`
   });
 
   const useCloud = await askAboutNxCloud();
 
   output.log({
-    title: `Analyzing the source code and creating configuration files`
+    title: `🧑‍🔧 Analyzing the source code and creating configuration files`
   });
 
   const packageJsonFiles = allProjectPackageJsonFiles(repoRoot);
@@ -38,11 +38,11 @@ export async function addNxToMonorepo() {
 
   createWorkspaceJsonFile(repoRoot, pds);
   createNxJsonFile(repoRoot, pds);
-  createOrUpdateTsconfig(repoRoot, pds);
+  createTsConfigIfMissing(repoRoot);
 
   addDepsToPackageJson(repoRoot, useCloud);
 
-  output.log({ title: `Installing dependencies` });
+  output.log({ title: `📦 Installing dependencies` });
   runInstall(repoRoot);
 
   if (useCloud) {
@@ -249,56 +249,25 @@ function deduceDefaultBase() {
   }
 }
 
-function normalizeFilePath(f: string) {
-  return path.extname(f) != ''
-    ? f.substr(0, f.length - path.extname(f).length)
-    : f;
+function createTsConfigIfMissing(repoRoot: string) {
+  if (!hasRootTsConfig(repoRoot)) {
+    fs.writeFileSync('tsconfig.base.json', JSON.stringify({compilerOptions: {}}, null, 2));
+  }
 }
 
-function createOrUpdateTsconfig(repoRoot: string, pds: ProjectDesc[]) {
-  const mappings = {};
-  pds.forEach((p) => {
-    mappings[p.name] = [
-      normalizePath(p.mainFilePath ? normalizeFilePath(p.mainFilePath) : p.dir)
-    ];
-    mappings[`${p.name}/*`] = [`${normalizePath(p.dir)}/*`];
-  });
-
-  let tsconfigFileName = getTsConfigFileName(repoRoot);
-  let json;
-
-  if (tsconfigFileName) {
-    json = readJsonFile(repoRoot, tsconfigFileName);
-  } else {
-    tsconfigFileName = 'tsconfig.base.json';
-    json = {};
-  }
-  if (json.compilerOptions && json.compilerOptions.paths) {
-    json.compilerOptions.paths = { ...json.compilerOptions.paths, ...mappings };
-  } else {
-    if (!json.compilerOptions) {
-      json.compilerOptions = {};
-    }
-    json.compilerOptions.paths = mappings;
-    json.compilerOptions.baseUrl ='.';
-  }
-  fs.writeFileSync(tsconfigFileName, JSON.stringify(json, null, 2));
-}
-
-function getTsConfigFileName(repoRoot: string) {
+function hasRootTsConfig(repoRoot: string) {
   try {
     readJsonFile(repoRoot, `tsconfig.base.json`);
-    return `tsconfig.base.json`;
+    return true;
   } catch (e) {
     try {
       readJsonFile(repoRoot, `tsconfig.json`);
-      return `tsconfig.json`;
+      return true;
     } catch (e) {
-      return null;
+      return false;
     }
   }
 }
-
 // add dependencies
 function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
   const json = readJsonFile(repoRoot, `package.json`);
@@ -363,7 +332,7 @@ function getPackageManagerCommand(
 
 function printFinalMessage(repoRoot) {
   output.success({
-    title: `Successfully added Nx to "${repoRoot}"`,
+    title: `🎉 Done!`,
     bodyLines: [
       `- Computation caching and code change analysis are enabled.`,
       `- Run "${

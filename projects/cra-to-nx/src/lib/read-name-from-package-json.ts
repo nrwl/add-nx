@@ -1,6 +1,5 @@
 import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
-
-const fs = require('fs');
+import * as fs from 'fs';
 
 export function readNameFromPackageJson(): string {
   let appName = 'webapp';

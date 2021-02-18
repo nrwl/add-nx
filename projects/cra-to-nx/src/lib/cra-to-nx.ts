@@ -4,8 +4,10 @@ import { output } from '@nrwl/workspace/src/utilities/output';
 import { execSync } from 'child_process';
 
 import { statSync } from 'fs-extra';
+import { addBuildPathToWorkspaceJson } from './add-build-path-to-workspace-json';
 import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
 import { checkForUncommittedChanges } from './check-for-uncommitted-changes';
+import { fixE2eTesting } from './fix-e2e-testing';
 import { readNameFromPackageJson } from './read-name-from-package-json';
 import { setupTsConfig } from './tsconfig-setup';
 import { writeConfigOverrides } from './write-config-overrides';
@@ -77,6 +79,8 @@ export async function createNxWorkspaceForReact() {
 
   addCRACommandsToWorkspaceJson(reactAppName, appIsJs);
 
+  addBuildPathToWorkspaceJson(reactAppName);
+
   output.log({ title: '🧑‍🔧 Customize webpack' });
 
   writeConfigOverrides(reactAppName);
@@ -108,6 +112,10 @@ export async function createNxWorkspaceForReact() {
   output.log({ title: '📃 Setup app-specific eslint' });
 
   setupTsConfig(reactAppName);
+
+  output.log({ title: '📃 Setup e2e tests' });
+
+  fixE2eTesting(reactAppName);
 
   output.log({ title: '🙂 Please be patient, one final step remaining!' });
 

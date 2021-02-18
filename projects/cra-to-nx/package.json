@@ -1,6 +1,6 @@
 {
   "name": "cra-to-nx",
-  "version": "REPLACE",
+  "version": "1.0.2",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nrwl/add-nx.git"
@@ -16,6 +16,6 @@
   },
   "dependencies": {
     "tslib": "2.1.0",
-    "@nrwl/workspace": "^11.2.0"
+    "@nrwl/workspace": "11.2.0"
   }
 }

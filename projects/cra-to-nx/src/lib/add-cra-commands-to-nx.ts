@@ -5,7 +5,7 @@ export function addCRACommandsToWorkspaceJson(
   appIsJs: boolean
 ) {
   execSync(
-    `nx g @nrwl/workspace:run-commands serve \
+    `npx nx g @nrwl/workspace:run-commands serve \
     --project ${appName} \
     --command "node ../../node_modules/.bin/react-app-rewired start" \
     --cwd "apps/${appName}"`,
@@ -13,7 +13,7 @@ export function addCRACommandsToWorkspaceJson(
   );
 
   execSync(
-    `nx g @nrwl/workspace:run-commands build \
+    `npx nx g @nrwl/workspace:run-commands build \
     --project ${appName} \
     --command "node ../../node_modules/.bin/react-app-rewired build" \
     --cwd "apps/${appName}"`,
@@ -21,7 +21,7 @@ export function addCRACommandsToWorkspaceJson(
   );
 
   execSync(
-    `nx g @nrwl/workspace:run-commands lint \
+    `npx nx g @nrwl/workspace:run-commands lint \
     --project ${appName} \
     --command "node ../../node_modules/.bin/eslint${
       appIsJs ? '' : ' src/**/*.tsx src/**/*.ts'
@@ -31,7 +31,7 @@ export function addCRACommandsToWorkspaceJson(
   );
 
   execSync(
-    `nx g @nrwl/workspace:run-commands test \
+    `npx nx g @nrwl/workspace:run-commands test \
     --project ${appName} \
     --command "node ../../node_modules/.bin/react-app-rewired test --watchAll=false" \
     --cwd "apps/${appName}"`,

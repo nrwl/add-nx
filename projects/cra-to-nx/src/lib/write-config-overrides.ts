@@ -1,4 +1,4 @@
-const fs = require('fs');
+import * as fs from 'fs';
 
 export function writeConfigOverrides(appName: string) {
   const configOverride = `

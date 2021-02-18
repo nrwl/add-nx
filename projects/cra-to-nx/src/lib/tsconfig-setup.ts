@@ -1,6 +1,5 @@
 import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
-
-const fs = require('fs');
+import * as fs from 'fs';
 
 const defaultTsConfig = {
   extends: '../../tsconfig.base.json',

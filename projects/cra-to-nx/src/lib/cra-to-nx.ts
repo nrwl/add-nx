@@ -3,7 +3,7 @@ import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
 import { output } from '@nrwl/workspace/src/utilities/output';
 import { execSync } from 'child_process';
 
-import { statSync } from 'fs-extra';
+import { statSync, moveSync, removeSync } from 'fs-extra';
 import { addBuildPathToWorkspaceJson } from './add-build-path-to-workspace-json';
 import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
 import { checkForUncommittedChanges } from './check-for-uncommitted-changes';
@@ -43,6 +43,7 @@ export async function createNxWorkspaceForReact() {
   }
 
   const reactAppName = readNameFromPackageJson();
+
   execSync(
     `npx create-nx-workspace temp-workspace --appName=${reactAppName} --preset=react --style=css --nx-cloud`,
     { stdio: [0, 1, 2] }
@@ -51,18 +52,24 @@ export async function createNxWorkspaceForReact() {
   output.log({ title: '👋 Welcome to Nx!' });
 
   output.log({ title: '🧹 Clearing unused files' });
-  execSync(
-    `rm -rf temp-workspace/apps/${reactAppName}/* temp-workspace/apps/${reactAppName}/{.babelrc,.browserslistrc} node_modules`,
-    { stdio: [0, 1, 2] }
-  );
+
+  removeSync(`temp-workspace/apps/${reactAppName}/`);
+  removeSync('node_modules');
 
   output.log({ title: '🚚 Moving your React app in your new Nx workspace' });
-  execSync(
-    `mv ./{README.md,package.json,src,public${
-      fileExists(`tsconfig.json`) ? ',tsconfig.json' : ''
-    }} temp-workspace/apps/${reactAppName}`,
-    { stdio: [0, 1, 2] }
+
+  const filesToMove = [
+    'README.md',
+    'package.json',
+    'src',
+    'public',
+    appIsJs ? null : 'tsconfig.json',
+  ].filter(Boolean);
+
+  filesToMove.forEach((f) =>
+    moveSync(f, `temp-workspace/apps/${reactAppName}`)
   );
+
   process.chdir(`temp-workspace/`);
 
   output.log({ title: '🤹 Add CRA commands to workspace.json' });
@@ -89,12 +96,23 @@ export async function createNxWorkspaceForReact() {
 
   process.chdir(`../`);
 
-  execSync('mv temp-workspace/* ./', { stdio: [0, 1, 2] });
-  execSync(
-    'mv temp-workspace/{.editorconfig,.env,.eslintrc.json,.gitignore,.prettierignore,.prettierrc,.vscode} ./',
-    { stdio: [0, 1, 2] }
-  );
-  execSync('rm -rf temp-workspace', { stdio: [0, 1, 2] });
+  moveSync('temp-workspace/*', './');
+
+  const dotFilesToMove = [
+    '.editorconfig',
+    '.env',
+    '.eslintrc.json',
+    '.gitignore',
+    '.prettierignore',
+    '.prettierrc',
+    '.vscode',
+  ];
+
+  dotFilesToMove.forEach((f) => moveSync(`temp-workspace/${f}`, './'));
+
+  output.log({ title: '🧹 Cleaning up.' });
+
+  removeSync('temp-workspace');
 
   output.log({ title: "📃 Extend the app's tsconfig.json from the base" });
   output.log({ title: '📃 Add tsconfig files for jest and eslint' });

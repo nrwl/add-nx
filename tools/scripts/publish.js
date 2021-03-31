@@ -4,6 +4,10 @@ const { readFileSync, writeFileSync, existsSync } = require('fs');
 
 const { join } = require('path');
 
+const [_, _2, project, v, t, l] = process.argv;
+const version = v;
+const tag = t === 'undefined' ? 'next' : t;
+
 function publish(dir, tag) {
   execSync(`npm publish ${dir} --access public --tag ${tag}`);
 }
@@ -18,11 +22,6 @@ function getProject(project) {
   const workspaceJson = JSON.parse(readFileSync('workspace.json').toString());
   return workspaceJson.projects[project];
 }
-
-const [_, _2, project] = process.argv;
-const version = process.env.VERSION
-const tag = process.env.TAG || 'next'
-
 if (!project) {
   throw new Error('Need the project');
 }

@@ -48,16 +48,6 @@ export async function createNxWorkspaceForReact() {
     { stdio: [0, 1, 2] }
   );
 
-  /**
-   * The following step will not be needed in the future
-   * https://github.com/nrwl/nx/pull/4678
-   */
-  execSync(
-    `git restore .gitignore README.md package.json${
-      fileExists(`tsconfig.json`) ? ' tsconfig.json' : ''
-    }`
-  );
-
   output.log({ title: '👋 Welcome to Nx!' });
 
   output.log({ title: '🧹 Clearing unused files' });

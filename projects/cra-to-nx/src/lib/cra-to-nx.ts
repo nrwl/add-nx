@@ -2,8 +2,8 @@
 import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
 import { output } from '@nrwl/workspace/src/utilities/output';
 import { execSync } from 'child_process';
+import { statSync, moveSync, removeSync, readdirSync } from 'fs-extra';
 
-import { statSync, moveSync, removeSync } from 'fs-extra';
 import { addBuildPathToWorkspaceJson } from './add-build-path-to-workspace-json';
 import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
 import { checkForUncommittedChanges } from './check-for-uncommitted-changes';
@@ -67,7 +67,7 @@ export async function createNxWorkspaceForReact() {
   ].filter(Boolean);
 
   filesToMove.forEach((f) =>
-    moveSync(f, `temp-workspace/apps/${reactAppName}`)
+    moveSync(f, `temp-workspace/apps/${reactAppName}/${f}`, { overwrite: true })
   );
 
   process.chdir(`temp-workspace/`);
@@ -96,19 +96,9 @@ export async function createNxWorkspaceForReact() {
 
   process.chdir(`../`);
 
-  moveSync('temp-workspace/*', './');
-
-  const dotFilesToMove = [
-    '.editorconfig',
-    '.env',
-    '.eslintrc.json',
-    '.gitignore',
-    '.prettierignore',
-    '.prettierrc',
-    '.vscode',
-  ];
-
-  dotFilesToMove.forEach((f) => moveSync(`temp-workspace/${f}`, './'));
+  readdirSync('./temp-workspace').forEach((f) =>
+    moveSync(`temp-workspace/${f}`, `./${f}`, { overwrite: true })
+  );
 
   output.log({ title: '🧹 Cleaning up.' });
 

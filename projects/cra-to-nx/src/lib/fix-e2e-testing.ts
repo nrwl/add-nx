@@ -7,7 +7,7 @@ export function fixE2eTesting(appName: string) {
   json.projects[`${appName}-e2e`].targets.e2e = {
     executor: '@nrwl/workspace:run-commands',
     options: {
-      commands: [`nx serve ${appName}`, `nx e2e-run-when-ready ${appName}-e2e`],
+      commands: [`nx e2e-serve ${appName}-e2e`, `nx e2e-run ${appName}-e2e`],
     },
   };
   json.projects[`${appName}-e2e`].targets['e2e-run'] = {
@@ -16,16 +16,13 @@ export function fixE2eTesting(appName: string) {
       cypressConfig: `apps/${appName}-e2e/cypress.json`,
       tsConfig: `apps/${appName}-e2e/tsconfig.e2e.json`,
       baseUrl: 'http://localhost:3000',
-    },
-    configurations: {
-      production: { devServerTarget: `${appName}:serve:production` },
-    },
+    }
   };
-  json.projects[`${appName}-e2e`].targets['e2e-run-when-ready'] = {
+  json.projects[`${appName}-e2e`].targets['e2e-serve'] = {
     executor: '@nrwl/workspace:run-commands',
     options: {
-      commands: [`nx e2e-run ${appName}-e2e`],
-      readyWhen: 'http://localhost:3000',
+      commands: [`nx serve ${appName}`],
+      readyWhen: 'can now view',
     },
   };
   fs.writeFileSync(`workspace.json`, JSON.stringify(json, null, 2));

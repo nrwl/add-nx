@@ -2,7 +2,13 @@
 import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
 import { output } from '@nrwl/workspace/src/utilities/output';
 import { execSync } from 'child_process';
-import { statSync, moveSync, removeSync, readdirSync } from 'fs-extra';
+import {
+  existsSync,
+  statSync,
+  moveSync,
+  removeSync,
+  readdirSync,
+} from 'fs-extra';
 
 import { addBuildPathToWorkspaceJson } from './add-build-path-to-workspace-json';
 import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
@@ -12,19 +18,21 @@ import { readNameFromPackageJson } from './read-name-from-package-json';
 import { setupTsConfig } from './tsconfig-setup';
 import { writeConfigOverrides } from './write-config-overrides';
 
-function isYarn() {
-  try {
-    statSync('yarn.lock');
-    return true;
-  } catch (e) {
-    return false;
-  }
+let packageManager: string;
+function checkPackageManager() {
+  packageManager = existsSync('yarn.lock')
+    ? 'yarn'
+    : existsSync('pnpm-lock.yaml')
+    ? 'pnpm'
+    : 'npm';
 }
 
 function addDependency(dep: string, dev?: boolean) {
   output.log({ title: `📦 Adding dependency: ${dep}` });
-  if (isYarn()) {
+  if (packageManager === 'yarn') {
     execSync(`yarn add ${dev ? '-D ' : ''}${dep}`, { stdio: [0, 1, 2] });
+  } else if (packageManager === 'pnpm') {
+    execSync(`pnpm i ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
   } else {
     execSync(`npm i ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
   }
@@ -32,6 +40,7 @@ function addDependency(dep: string, dev?: boolean) {
 
 export async function createNxWorkspaceForReact() {
   checkForUncommittedChanges();
+  checkPackageManager();
 
   output.log({ title: '🐳 Nx initialization' });
 
@@ -45,7 +54,7 @@ export async function createNxWorkspaceForReact() {
   const reactAppName = readNameFromPackageJson();
 
   execSync(
-    `npx create-nx-workspace temp-workspace --appName=${reactAppName} --preset=react --style=css --nx-cloud`,
+    `npx create-nx-workspace@latest temp-workspace --appName=${reactAppName} --preset=react --style=css --nx-cloud --packageManager=${packageManager}`,
     { stdio: [0, 1, 2] }
   );
 
@@ -64,13 +73,16 @@ export async function createNxWorkspaceForReact() {
     'src',
     'public',
     appIsJs ? null : 'tsconfig.json',
+    packageManager === 'yarn' ? 'yarn.lock' : null,
+    packageManager === 'pnpm' ? 'pnpm-lock.yaml' : null,
+    packageManager === 'npm' ? 'package-lock.json' : null,
   ].filter(Boolean);
 
   filesToMove.forEach((f) =>
     moveSync(f, `temp-workspace/apps/${reactAppName}/${f}`, { overwrite: true })
   );
 
-  process.chdir(`temp-workspace/`);
+  process.chdir('temp-workspace/');
 
   output.log({ title: '🤹 Add CRA commands to workspace.json' });
 
@@ -92,13 +104,13 @@ export async function createNxWorkspaceForReact() {
 
   execSync(`echo "node_modules" >> .gitignore`, { stdio: [0, 1, 2] });
 
+  process.chdir('../');
+
   output.log({ title: '🚚 Folder restructuring.' });
 
-  process.chdir(`../`);
-
-  readdirSync('./temp-workspace').forEach((f) =>
-    moveSync(`temp-workspace/${f}`, `./${f}`, { overwrite: true })
-  );
+  readdirSync('./temp-workspace').forEach((f) => {
+    moveSync(`temp-workspace/${f}`, `./${f}`, { overwrite: true });
+  });
 
   output.log({ title: '🧹 Cleaning up.' });
 

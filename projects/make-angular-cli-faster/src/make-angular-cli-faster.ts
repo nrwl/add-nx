@@ -8,7 +8,7 @@ const inquirer = require('inquirer');
 
 const parsedArgs = yargsParser(process.argv, {
   string: ['version'],
-  boolean: ['verbose']
+  boolean: ['verbose'],
 });
 
 function isYarn() {
@@ -23,9 +23,9 @@ function isYarn() {
 function addDependency(dep: string) {
   const stdio = parsedArgs.verbose ? [0, 1, 2] : ['ignore', 'ignore', 'ignore'];
   if (isYarn()) {
-    execSync(`yarn add -D ${dep}`, { stdio });
+    execSync(`yarn add -D ${dep}`, { stdio: stdio as any });
   } else {
-    execSync(`npm i --save-dev ${dep}`, { stdio });
+    execSync(`npm i --save-dev ${dep}`, { stdio: stdio as any });
   }
 }
 
@@ -55,13 +55,17 @@ function addNxCloud() {
 }
 
 async function main() {
-  const version = parsedArgs.version ? parsedArgs.version : `^10.0.0`;
+  const version = parsedArgs.version ? parsedArgs.version : `latest`;
 
   const output = require('@nrwl/workspace/src/utils/output').output;
   output.log({ title: 'Nx initialization' });
 
+  addDependency(`@nrwl/tao@${version}`);
+  addDependency(`@nrwl/cli@${version}`);
   addDependency(`@nrwl/workspace@${version}`);
-  execSync(`nx g @nrwl/workspace:ng-add --preserveAngularCLILayout`, { stdio: [0, 1, 2] });
+  execSync(`nx g @nrwl/workspace:ng-add --preserveAngularCLILayout`, {
+    stdio: [0, 1, 2],
+  });
 
   if (await addNxCloud()) {
     output.log({ title: 'Nx Cloud initialization' });
@@ -69,22 +73,23 @@ async function main() {
     execSync(`nx g @nrwl/nx-cloud:init`, { stdio: [0, 1, 2] });
   }
 
-  execSync('npm install', {stdio: ['ignore', 'ignore', 'ignore']});
-
-  const buildCmd = isYarn() ? `"yarn ng build"` : `"npm run ng build"`;
+  execSync('npm install', { stdio: ['ignore', 'ignore', 'ignore'] });
 
   output.success({
-    title: 'Angular CLI is faster now!', bodyLines: [
-      `Execute ${buildCmd} twice to see the computation caching in action.`,
+    title: 'Angular CLI is faster now!',
+    bodyLines: [
+      `Execute 'npx ng build' twice to see the computation caching in action.`,
       `Learn more about computation caching, how it is shared with your teammates,`,
-      `and how it can speed up your CI by up to 10 times at https://nx.app/make-angular-cli-faster`
-    ]
+      `and how it can speed up your CI by up to 10 times at https://nx.dev/angular`,
+    ],
   });
 }
 
-main().then(() => {
-  process.exit(0);
-}).catch((e) => {
-  console.log(e);
-  process.exit(1);
-});
+main()
+  .then(() => {
+    process.exit(0);
+  })
+  .catch((e) => {
+    console.log(e);
+    process.exit(1);
+  });

@@ -178,7 +178,7 @@ function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   };
 
   pds.forEach((f) => {
-    res.projects[f.name] = { root: normalizePath(f.dir), type: 'library' };
+    res.projects[f.name] = { root: normalizePath(f.dir), projectType: 'library' };
   });
 
   fs.writeFileSync(`${repoRoot}/workspace.json`, JSON.stringify(res, null, 2));

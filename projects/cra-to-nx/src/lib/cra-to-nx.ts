@@ -67,8 +67,7 @@ export async function createNxWorkspaceForReact() {
 
   output.log({ title: '🚚 Moving your React app in your new Nx workspace' });
 
-  const filesToMove = [
-    'README.md',
+  const requiredCraFiles = [
     'package.json',
     'src',
     'public',
@@ -76,11 +75,23 @@ export async function createNxWorkspaceForReact() {
     packageManager === 'yarn' ? 'yarn.lock' : null,
     packageManager === 'pnpm' ? 'pnpm-lock.yaml' : null,
     packageManager === 'npm' ? 'package-lock.json' : null,
-  ].filter(Boolean);
+  ];
 
-  filesToMove.forEach((f) =>
-    moveSync(f, `temp-workspace/apps/${reactAppName}/${f}`, { overwrite: true })
-  );
+  const optionalCraFiles = [
+    'README.md',
+  ];
+
+  const filesToMove = [...requiredCraFiles, ...optionalCraFiles].filter(Boolean);
+
+  filesToMove.forEach((f) => {
+    try {
+      moveSync(f, `temp-workspace/apps/${reactAppName}/${f}`, { overwrite: true });
+    } catch (error) {
+      if (requiredCraFiles.includes(f)) {
+        throw error;
+      }
+    }
+  });
 
   process.chdir('temp-workspace/');
 

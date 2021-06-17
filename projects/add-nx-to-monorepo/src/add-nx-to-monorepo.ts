@@ -4,11 +4,11 @@ import * as stripJsonComments from 'strip-json-comments';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as cp from 'child_process';
-import { output } from '@nrwl/workspace/src/utils/output';
+import {output} from '@nrwl/workspace/src/utils/output';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const inquirer = require('inquirer');
 
-import { execSync } from 'child_process';
+import {execSync} from 'child_process';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ignore = require('ignore');
 
@@ -32,7 +32,7 @@ export async function addNxToMonorepo() {
   const pds = createProjectDesc(repoRoot, packageJsonFiles);
 
   if (pds.length === 0) {
-    output.error({ title: `Cannot find any projects in this monorepo` });
+    output.error({title: `Cannot find any projects in this monorepo`});
     process.exit(1);
   }
 
@@ -42,7 +42,7 @@ export async function addNxToMonorepo() {
 
   addDepsToPackageJson(repoRoot, useCloud);
 
-  output.log({ title: `📦 Installing dependencies` });
+  output.log({title: `📦 Installing dependencies`});
   runInstall(repoRoot);
 
   if (useCloud) {
@@ -158,7 +158,7 @@ function createProjectDesc(
         mainFilePath: path.join(dir, packageJson.index)
       });
     } else {
-      res.push({ name: packageJson.name, dir, mainFilePath: null });
+      res.push({name: packageJson.name, dir, mainFilePath: null});
     }
   });
   return res;
@@ -178,7 +178,7 @@ function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   };
 
   pds.forEach((f) => {
-    res.projects[f.name] = { root: normalizePath(f.dir), type: 'library' };
+    res.projects[f.name] = {root: normalizePath(f.dir), type: 'library'};
   });
 
   fs.writeFileSync(`${repoRoot}/workspace.json`, JSON.stringify(res, null, 2));
@@ -187,7 +187,7 @@ function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
 
 function detectWorkspaceScope(repoRoot: string) {
   let scope = readJsonFile(repoRoot, `package.json`).name;
-  if (! scope) return "undetermined";
+  if (!scope) return "undetermined";
 
   if (scope.startsWith('@')) {
     scope = scope.substring(1);
@@ -212,10 +212,20 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
       default: {
         runner: '@nrwl/workspace/tasks-runners/default',
         options: {
-          cacheableOperations: ['build', 'test', 'lint', 'package', 'prepare'],
-          strictlyOrderedTargets: ['build', 'package', 'prepare'],
+          cacheableOperations: ['build', 'test', 'lint', 'package', 'prepare']
         }
       }
+    },
+    targetDependencies: {
+      build: [
+        {target: 'build', projects: 'dependencies'}
+      ],
+      prepare: [
+        {target: 'prepare', projects: 'dependencies'}
+      ],
+      package: [
+        {target: 'package', projects: 'dependencies'}
+      ]
     },
     projects: {},
     affected: {
@@ -224,7 +234,7 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   };
 
   pds.forEach((f) => {
-    res.projects[f.name] = { implicitDependencies: [] };
+    res.projects[f.name] = {implicitDependencies: []};
   });
 
   fs.writeFileSync(`${repoRoot}/nx.json`, JSON.stringify(res, null, 2));
@@ -268,6 +278,7 @@ function hasRootTsConfig(repoRoot: string) {
     }
   }
 }
+
 // add dependencies
 function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
   const json = readJsonFile(repoRoot, `package.json`);
@@ -276,7 +287,7 @@ function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
   json.devDependencies['@nrwl/cli'] = 'latest';
   json.devDependencies['@nrwl/tao'] = 'latest';
   if (!(json.dependencies && json.dependencies['typescript']) && !json.devDependencies['typescript']) {
-    json.devDependencies['typescript'] = '4.1.3';
+    json.devDependencies['typescript'] = '4.2.4';
   }
   if (useCloud) {
     json.devDependencies['@nrwl/nx-cloud'] = 'latest';
@@ -285,7 +296,7 @@ function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
 }
 
 function runInstall(repoRoot: string) {
-  cp.execSync(getPackageManagerCommand(repoRoot).install, { stdio: [0, 1, 2] });
+  cp.execSync(getPackageManagerCommand(repoRoot).install, {stdio: [0, 1, 2]});
 }
 
 function initCloud(repoRoot: string) {

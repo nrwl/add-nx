@@ -230,14 +230,36 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
     projects: {},
     affected: {
       defaultBase: deduceDefaultBase()
-    }
+    },
+    workspaceLayout: deduceWorkspaceLayout(repoRoot)
   };
+
 
   pds.forEach((f) => {
     res.projects[f.name] = {implicitDependencies: []};
   });
 
   fs.writeFileSync(`${repoRoot}/nx.json`, JSON.stringify(res, null, 2));
+}
+
+function deduceWorkspaceLayout(repoRoot: string) {
+  if (exists(path.join(repoRoot, "packages"))) {
+    return {libsDir: "packages", appsDir: "packages"}
+  } else if (exists(path.join(repoRoot, "projects"))) {
+    return {libsDir: "projects", appsDir: "projects"}
+  } else {
+    return undefined
+  }
+}
+
+function exists(folder: string) {
+  try {
+    const s = fs.statSync(folder);
+    return s.isDirectory();
+    // eslint-disable-next-line no-empty
+  } catch (e) {
+    return false;
+  }
 }
 
 function deduceDefaultBase() {

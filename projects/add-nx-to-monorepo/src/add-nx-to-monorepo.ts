@@ -178,7 +178,7 @@ function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   };
 
   pds.forEach((f) => {
-    res.projects[f.name] = {root: normalizePath(f.dir), type: 'library'};
+    res.projects[f.name] = {root: normalizePath(f.dir)};
   });
 
   fs.writeFileSync(`${repoRoot}/workspace.json`, JSON.stringify(res, null, 2));
@@ -199,15 +199,8 @@ function detectWorkspaceScope(repoRoot: string) {
 function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
   const scope = detectWorkspaceScope(repoRoot);
   const res = {
+    extends: "@nrwl/workspace/presets/npm.json",
     npmScope: scope,
-    implicitDependencies: {
-      'workspace.json': '*',
-      'package.json': {
-        dependencies: '*',
-        devDependencies: '*'
-      },
-      'nx.json': '*'
-    },
     tasksRunnerOptions: {
       default: {
         runner: '@nrwl/workspace/tasks-runners/default',
@@ -244,7 +237,7 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
 
 function deduceWorkspaceLayout(repoRoot: string) {
   if (exists(path.join(repoRoot, "packages"))) {
-    return {libsDir: "packages", appsDir: "packages"}
+    return undefined;
   } else if (exists(path.join(repoRoot, "projects"))) {
     return {libsDir: "projects", appsDir: "projects"}
   } else {

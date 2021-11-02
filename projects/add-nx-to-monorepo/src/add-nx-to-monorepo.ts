@@ -220,7 +220,6 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
         {target: 'package', projects: 'dependencies'}
       ]
     },
-    projects: {},
     affected: {
       defaultBase: deduceDefaultBase()
     },

@@ -226,11 +226,6 @@ function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
     workspaceLayout: deduceWorkspaceLayout(repoRoot)
   };
 
-
-  pds.forEach((f) => {
-    res.projects[f.name] = {implicitDependencies: []};
-  });
-
   fs.writeFileSync(`${repoRoot}/nx.json`, JSON.stringify(res, null, 2));
 }
 

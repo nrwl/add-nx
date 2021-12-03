@@ -36,8 +36,7 @@ export async function addNxToMonorepo() {
     process.exit(1);
   }
 
-  createWorkspaceJsonFile(repoRoot, pds);
-  createNxJsonFile(repoRoot, pds);
+  createNxJsonFile(repoRoot);
   createTsConfigIfMissing(repoRoot);
 
   addDepsToPackageJson(repoRoot, useCloud);
@@ -170,20 +169,6 @@ function readJsonFile(repoRoot: string, file: string) {
   );
 }
 
-// create files
-function createWorkspaceJsonFile(repoRoot: string, pds: ProjectDesc[]) {
-  const res = {
-    version: 2,
-    projects: {}
-  };
-
-  pds.forEach((f) => {
-    res.projects[f.name] = {root: normalizePath(f.dir)};
-  });
-
-  fs.writeFileSync(`${repoRoot}/workspace.json`, JSON.stringify(res, null, 2));
-}
-
 
 function detectWorkspaceScope(repoRoot: string) {
   let scope = readJsonFile(repoRoot, `package.json`).name;
@@ -196,7 +181,7 @@ function detectWorkspaceScope(repoRoot: string) {
   return scope.split("/")[0];
 }
 
-function createNxJsonFile(repoRoot: string, pds: ProjectDesc[]) {
+function createNxJsonFile(repoRoot: string) {
   const scope = detectWorkspaceScope(repoRoot);
   const res = {
     extends: "@nrwl/workspace/presets/npm.json",

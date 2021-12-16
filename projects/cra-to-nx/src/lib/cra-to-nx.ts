@@ -3,20 +3,21 @@ import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
 import { output } from '@nrwl/workspace/src/utilities/output';
 import { execSync } from 'child_process';
 import {
+  copySync,
   existsSync,
-  statSync,
   moveSync,
+  readJsonSync,
   removeSync,
   readdirSync,
 } from 'fs-extra';
 
-import { addBuildPathToWorkspaceJson } from './add-build-path-to-workspace-json';
 import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
 import { checkForUncommittedChanges } from './check-for-uncommitted-changes';
 import { fixE2eTesting } from './fix-e2e-testing';
 import { readNameFromPackageJson } from './read-name-from-package-json';
 import { setupTsConfig } from './tsconfig-setup';
 import { writeConfigOverrides } from './write-config-overrides';
+import { addPostinstallPatch } from './add-postinstall-patch';
 
 let packageManager: string;
 function checkPackageManager() {
@@ -52,9 +53,15 @@ export async function createNxWorkspaceForReact() {
   }
 
   const reactAppName = readNameFromPackageJson();
+  const packageJson = readJsonSync('package.json');
+  const deps = {
+    ...packageJson.dependencies,
+    ...packageJson.devDependencies,
+  };
+  const isCRA5 = /^[^~]?5/.test(deps['react-scripts']);
 
   execSync(
-    `npx create-nx-workspace@latest temp-workspace --appName=${reactAppName} --preset=react --style=css --nx-cloud --packageManager=${packageManager}`,
+    `npx -y create-nx-workspace@latest temp-workspace --appName=${reactAppName} --preset=react --style=css --nx-cloud --packageManager=${packageManager}`,
     { stdio: [0, 1, 2] }
   );
 
@@ -62,12 +69,14 @@ export async function createNxWorkspaceForReact() {
 
   output.log({ title: '🧹 Clearing unused files' });
 
+  copySync(`temp-workspace/apps/${reactAppName}/project.json`, 'project.json');
   removeSync(`temp-workspace/apps/${reactAppName}/`);
   removeSync('node_modules');
 
   output.log({ title: '🚚 Moving your React app in your new Nx workspace' });
 
   const requiredCraFiles = [
+    'project.json',
     'package.json',
     'src',
     'public',
@@ -77,15 +86,17 @@ export async function createNxWorkspaceForReact() {
     packageManager === 'npm' ? 'package-lock.json' : null,
   ];
 
-  const optionalCraFiles = [
-    'README.md',
-  ];
+  const optionalCraFiles = ['README.md'];
 
-  const filesToMove = [...requiredCraFiles, ...optionalCraFiles].filter(Boolean);
+  const filesToMove = [...requiredCraFiles, ...optionalCraFiles].filter(
+    Boolean
+  );
 
   filesToMove.forEach((f) => {
     try {
-      moveSync(f, `temp-workspace/apps/${reactAppName}/${f}`, { overwrite: true });
+      moveSync(f, `temp-workspace/apps/${reactAppName}/${f}`, {
+        overwrite: true,
+      });
     } catch (error) {
       if (requiredCraFiles.includes(f)) {
         throw error;
@@ -99,11 +110,9 @@ export async function createNxWorkspaceForReact() {
 
   addCRACommandsToWorkspaceJson(reactAppName, appIsJs);
 
-  addBuildPathToWorkspaceJson(reactAppName);
+  output.log({ title: '🧑‍🔧 Customize webpack ' + deps['react-scripts'] });
 
-  output.log({ title: '🧑‍🔧 Customize webpack' });
-
-  writeConfigOverrides(reactAppName);
+  writeConfigOverrides(reactAppName, isCRA5);
 
   output.log({
     title: '🛬 Skip CRA preflight check since Nx manages the monorepo',
@@ -134,6 +143,8 @@ export async function createNxWorkspaceForReact() {
 
   setupTsConfig(reactAppName);
 
+  addPostinstallPatch();
+
   output.log({ title: '📃 Setup e2e tests' });
 
   fixE2eTesting(reactAppName);
@@ -150,6 +161,9 @@ export async function createNxWorkspaceForReact() {
   addDependency('react-app-rewired', true);
   addDependency('web-vitals', true);
   addDependency('jest-watch-typeahead', true); // Only for ts apps?
+  // Patch buggy package
+  // This is needed until we move to craco (https://github.com/gsoft-inc/craco)
+  execSync('node tools/scripts/patch-react-app-rewired.js');
 
   output.log({
     title: '🎉 Done!',

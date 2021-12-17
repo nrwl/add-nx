@@ -19,6 +19,7 @@ import { setupTsConfig } from './tsconfig-setup';
 import { writeConfigOverrides } from './write-config-overrides';
 import { addPostinstallPatch } from './add-postinstall-patch';
 import { cleanUpFiles } from './clean-up-files';
+import { rmdirSync } from 'fs';
 
 let packageManager: string;
 function checkPackageManager() {
@@ -146,6 +147,8 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
   if (options.e2e) {
     output.log({ title: '📃 Setup e2e tests' });
     setupE2eProject(reactAppName);
+  } else {
+    removeSync(`apps/${reactAppName}-e2e`);
   }
 
   output.log({ title: '🙂 Please be patient, one final step remaining!' });

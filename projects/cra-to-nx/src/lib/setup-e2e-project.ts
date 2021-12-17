@@ -1,7 +1,7 @@
 import { fileExists } from '@nrwl/workspace/src/utilities/fileutils';
 import * as fs from 'fs';
 
-export function fixE2eTesting(appName: string) {
+export function setupE2eProject(appName: string) {
   const data = fs.readFileSync(`apps/${appName}-e2e/project.json`);
   const json = JSON.parse(data.toString());
   json.targets.e2e = {

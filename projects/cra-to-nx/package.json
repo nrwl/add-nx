@@ -1,6 +1,6 @@
 {
   "name": "cra-to-nx",
-  "version": "1.0.10",
+  "version": "2.0.0",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/nrwl/add-nx.git"
@@ -17,6 +17,7 @@
   "dependencies": {
     "tslib": "2.1.0",
     "@nrwl/workspace": "^11.2.0",
-    "fs-extra": "^9.1.0"
+    "fs-extra": "^9.1.0",
+    "yargs-parser": "^20.0.0"
   }
 }

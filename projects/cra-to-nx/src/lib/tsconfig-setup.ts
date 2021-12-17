@@ -55,14 +55,6 @@ const defaultTsConfigSpec = {
   ],
 };
 
-const defaultEsLintRc = {
-  extends: ['plugin:@nrwl/nx/react', '../../.eslintrc.json'],
-  ignorePatterns: ['!**/*'],
-  rules: {
-    'react/react-in-jsx-scope': 'off',
-  },
-};
-
 export function setupTsConfig(appName: string) {
   if (fileExists(`apps/${appName}/tsconfig.json`)) {
     const data = fs.readFileSync(`apps/${appName}/tsconfig.json`);
@@ -118,20 +110,4 @@ export function setupTsConfig(appName: string) {
       JSON.stringify(defaultTsConfigSpec, null, 2)
     );
   }
-
-  let eslintrc = defaultEsLintRc;
-  const packageJson = JSON.parse(
-    fs.readFileSync(`apps/${appName}/package.json`).toString()
-  );
-
-  // Use existing config if possible
-  if (packageJson.eslintConfig) {
-    eslintrc = packageJson.eslintConfig;
-    eslintrc.ignorePatterns = ['!**/*'];
-  }
-
-  fs.writeFileSync(
-    `apps/${appName}/.eslintrc.json`,
-    JSON.stringify(eslintrc, null, 2)
-  );
 }

@@ -13,11 +13,12 @@ import {
 
 import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
 import { checkForUncommittedChanges } from './check-for-uncommitted-changes';
-import { fixE2eTesting } from './fix-e2e-testing';
+import { setupE2eProject } from './setup-e2e-project';
 import { readNameFromPackageJson } from './read-name-from-package-json';
 import { setupTsConfig } from './tsconfig-setup';
 import { writeConfigOverrides } from './write-config-overrides';
 import { addPostinstallPatch } from './add-postinstall-patch';
+import { cleanUpFiles } from './clean-up-files';
 
 let packageManager: string;
 function checkPackageManager() {
@@ -39,7 +40,7 @@ function addDependency(dep: string, dev?: boolean) {
   }
 }
 
-export async function createNxWorkspaceForReact() {
+export async function createNxWorkspaceForReact(options: Record<string, any>) {
   checkForUncommittedChanges();
   checkPackageManager();
 
@@ -134,20 +135,18 @@ export async function createNxWorkspaceForReact() {
 
   output.log({ title: '🧹 Cleaning up.' });
 
-  removeSync('temp-workspace');
+  cleanUpFiles(reactAppName);
 
   output.log({ title: "📃 Extend the app's tsconfig.json from the base" });
-  output.log({ title: '📃 Add tsconfig files for jest and eslint' });
-  output.log({ title: '📃 Disable react/react-in-jsx-scope eslint rule' });
-  output.log({ title: '📃 Setup app-specific eslint' });
 
   setupTsConfig(reactAppName);
 
   addPostinstallPatch();
 
-  output.log({ title: '📃 Setup e2e tests' });
-
-  fixE2eTesting(reactAppName);
+  if (options.e2e) {
+    output.log({ title: '📃 Setup e2e tests' });
+    setupE2eProject(reactAppName);
+  }
 
   output.log({ title: '🙂 Please be patient, one final step remaining!' });
 
@@ -183,7 +182,6 @@ export async function createNxWorkspaceForReact() {
     bodyLines: [
       `nx serve ${reactAppName}`,
       `nx build ${reactAppName}`,
-      `nx lint ${reactAppName}`,
       `nx test ${reactAppName}`,
       ` `,
       `https://nx.dev/latest/react/migration/migration-cra#10-try-the-commands`,

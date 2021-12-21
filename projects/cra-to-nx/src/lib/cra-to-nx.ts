@@ -17,9 +17,7 @@ import { setupE2eProject } from './setup-e2e-project';
 import { readNameFromPackageJson } from './read-name-from-package-json';
 import { setupTsConfig } from './tsconfig-setup';
 import { writeConfigOverrides } from './write-config-overrides';
-import { addPostinstallPatch } from './add-postinstall-patch';
 import { cleanUpFiles } from './clean-up-files';
-import { rmdirSync } from 'fs';
 
 let packageManager: string;
 function checkPackageManager() {
@@ -37,7 +35,7 @@ function addDependency(dep: string, dev?: boolean) {
   } else if (packageManager === 'pnpm') {
     execSync(`pnpm i ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
   } else {
-    execSync(`npm i ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
+    execSync(`npm i --force ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
   }
 }
 
@@ -110,7 +108,7 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
 
   output.log({ title: '🤹 Add CRA commands to workspace.json' });
 
-  addCRACommandsToWorkspaceJson(reactAppName, appIsJs);
+  addCRACommandsToWorkspaceJson(reactAppName);
 
   output.log({ title: '🧑‍🔧 Customize webpack ' + deps['react-scripts'] });
 
@@ -142,8 +140,6 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
 
   setupTsConfig(reactAppName);
 
-  addPostinstallPatch();
-
   if (options.e2e) {
     output.log({ title: '📃 Setup e2e tests' });
     setupE2eProject(reactAppName);
@@ -160,12 +156,9 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
   addDependency('react-scripts', true);
   addDependency('@testing-library/jest-dom', true);
   addDependency('eslint-config-react-app', true);
-  addDependency('react-app-rewired', true);
+  addDependency('@craco/craco', true);
   addDependency('web-vitals', true);
   addDependency('jest-watch-typeahead', true); // Only for ts apps?
-  // Patch buggy package
-  // This is needed until we move to craco (https://github.com/gsoft-inc/craco)
-  execSync('node tools/scripts/patch-react-app-rewired.js');
 
   output.log({
     title: '🎉 Done!',

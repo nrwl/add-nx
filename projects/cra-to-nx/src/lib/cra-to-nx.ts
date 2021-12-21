@@ -11,12 +11,12 @@ import {
   readdirSync,
 } from 'fs-extra';
 
-import { addCRACommandsToWorkspaceJson } from './add-cra-commands-to-nx';
+import { addCRAcracoScriptsToPackageJson } from './add-cra-commands-to-nx';
 import { checkForUncommittedChanges } from './check-for-uncommitted-changes';
 import { setupE2eProject } from './setup-e2e-project';
 import { readNameFromPackageJson } from './read-name-from-package-json';
 import { setupTsConfig } from './tsconfig-setup';
-import { writeConfigOverrides } from './write-config-overrides';
+import { writeCracoConfig } from './write-craco-config';
 import { cleanUpFiles } from './clean-up-files';
 
 let packageManager: string;
@@ -35,7 +35,9 @@ function addDependency(dep: string, dev?: boolean) {
   } else if (packageManager === 'pnpm') {
     execSync(`pnpm i ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
   } else {
-    execSync(`npm i --force ${dev ? '--save-dev ' : ''}${dep}`, { stdio: [0, 1, 2] });
+    execSync(`npm i --force ${dev ? '--save-dev ' : ''}${dep}`, {
+      stdio: [0, 1, 2],
+    });
   }
 }
 
@@ -48,7 +50,6 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
   let appIsJs = true;
 
   if (fileExists(`tsconfig.json`)) {
-    console.log('THE APP IS IN TS');
     appIsJs = false;
   }
 
@@ -106,13 +107,13 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
 
   process.chdir('temp-workspace/');
 
-  output.log({ title: '🤹 Add CRA commands to workspace.json' });
+  output.log({ title: '🤹 Add CRA craco scripts to package.json' });
 
-  addCRACommandsToWorkspaceJson(reactAppName);
+  addCRAcracoScriptsToPackageJson(reactAppName);
 
   output.log({ title: '🧑‍🔧 Customize webpack ' + deps['react-scripts'] });
 
-  writeConfigOverrides(reactAppName, isCRA5);
+  writeCracoConfig(reactAppName, isCRA5);
 
   output.log({
     title: '🛬 Skip CRA preflight check since Nx manages the monorepo',
@@ -176,9 +177,9 @@ export async function createNxWorkspaceForReact(options: Record<string, any>) {
   output.note({
     title: 'Or, you can try the commands!',
     bodyLines: [
-      `nx serve ${reactAppName}`,
-      `nx build ${reactAppName}`,
-      `nx test ${reactAppName}`,
+      `npx nx serve ${reactAppName}`,
+      `npx nx build ${reactAppName}`,
+      `npx nx test ${reactAppName}`,
       ` `,
       `https://nx.dev/latest/react/migration/migration-cra#10-try-the-commands`,
     ],

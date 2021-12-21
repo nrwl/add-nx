@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-export function writeConfigOverrides(appName: string, isCRA5: boolean) {
+export function writeCracoConfig(appName: string, isCRA5: boolean) {
   const configOverride = `
   const path = require('path');
   const TsConfigPathsPlugin = require('tsconfig-paths-webpack-plugin');

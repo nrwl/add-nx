@@ -1,6 +1,6 @@
 import { readJsonSync, writeJsonSync } from 'fs-extra';
 
-export function addCRACommandsToWorkspaceJson(appName: string) {
+export function addCRAcracoScriptsToPackageJson(appName: string) {
   const packageJson = readJsonSync(`apps/${appName}/package.json`);
   packageJson.scripts = {
     ...packageJson.scripts,

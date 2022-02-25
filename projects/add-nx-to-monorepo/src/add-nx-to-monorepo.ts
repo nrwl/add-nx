@@ -4,11 +4,11 @@ import * as stripJsonComments from 'strip-json-comments';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as cp from 'child_process';
-import {output} from '@nrwl/workspace/src/utils/output';
+import { output } from '@nrwl/workspace/src/utils/output';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const inquirer = require('inquirer');
 
-import {execSync} from 'child_process';
+import { execSync } from 'child_process';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const ignore = require('ignore');
 
@@ -18,13 +18,13 @@ export async function addNxToMonorepo() {
   const repoRoot = process.cwd();
 
   output.log({
-    title: `🐳 Nx initialization`
+    title: `🐳 Nx initialization`,
   });
 
   const useCloud = await askAboutNxCloud();
 
   output.log({
-    title: `🧑‍🔧 Analyzing the source code and creating configuration files`
+    title: `🧑‍🔧 Analyzing the source code and creating configuration files`,
   });
 
   const packageJsonFiles = allProjectPackageJsonFiles(repoRoot);
@@ -32,7 +32,7 @@ export async function addNxToMonorepo() {
   const pds = createProjectDesc(repoRoot, packageJsonFiles);
 
   if (pds.length === 0) {
-    output.error({title: `Cannot find any projects in this monorepo`});
+    output.error({ title: `Cannot find any projects in this monorepo` });
     process.exit(1);
   }
 
@@ -41,7 +41,7 @@ export async function addNxToMonorepo() {
 
   addDepsToPackageJson(repoRoot, useCloud);
 
-  output.log({title: `📦 Installing dependencies`});
+  output.log({ title: `📦 Installing dependencies` });
   runInstall(repoRoot);
 
   if (useCloud) {
@@ -62,16 +62,16 @@ async function askAboutNxCloud() {
           {
             value: 'yes',
             name:
-              'Yes [Faster builds, run details, Github integration. Learn more at https://nx.app]'
+              'Yes [Faster builds, run details, Github integration. Learn more at https://nx.app]',
           },
 
           {
             value: 'no',
-            name: 'No'
-          }
+            name: 'No',
+          },
         ],
-        default: 'no'
-      }
+        default: 'no',
+      },
     ])
     .then((a: { NxCloud: 'yes' | 'no' }) => a.NxCloud === 'yes');
 }
@@ -108,12 +108,10 @@ function allPackageJsonFiles(repoRoot: string, dirName: string) {
           res = [...res, ...allPackageJsonFiles(repoRoot, child)];
         }
         // eslint-disable-next-line no-empty
-      } catch (e) {
-      }
+      } catch (e) {}
     });
     // eslint-disable-next-line no-empty
-  } catch (e) {
-  }
+  } catch (e) {}
   return res;
 }
 
@@ -122,8 +120,7 @@ function getIgnoredGlobs(repoRoot: string) {
   try {
     ig.add(fs.readFileSync(`${repoRoot}/.gitignore`).toString());
     // eslint-disable-next-line no-empty
-  } catch (e) {
-  }
+  } catch (e) {}
   return ig;
 }
 
@@ -148,16 +145,16 @@ function createProjectDesc(
       res.push({
         name: packageJson.name,
         dir,
-        mainFilePath: path.join(dir, packageJson.main)
+        mainFilePath: path.join(dir, packageJson.main),
       });
     } else if (packageJson.index) {
       res.push({
         name: packageJson.name,
         dir,
-        mainFilePath: path.join(dir, packageJson.index)
+        mainFilePath: path.join(dir, packageJson.index),
       });
     } else {
-      res.push({name: packageJson.name, dir, mainFilePath: null});
+      res.push({ name: packageJson.name, dir, mainFilePath: null });
     }
   });
   return res;
@@ -169,58 +166,56 @@ function readJsonFile(repoRoot: string, file: string) {
   );
 }
 
-
 function detectWorkspaceScope(repoRoot: string) {
   let scope = readJsonFile(repoRoot, `package.json`).name;
-  if (!scope) return "undetermined";
+  if (!scope) return 'undetermined';
 
   if (scope.startsWith('@')) {
     scope = scope.substring(1);
   }
 
-  return scope.split("/")[0];
+  return scope.split('/')[0];
 }
 
 function createNxJsonFile(repoRoot: string) {
   const scope = detectWorkspaceScope(repoRoot);
   const res = {
-    extends: "@nrwl/workspace/presets/npm.json",
+    extends: '@nrwl/workspace/presets/npm.json',
     npmScope: scope,
     tasksRunnerOptions: {
       default: {
         runner: '@nrwl/workspace/tasks-runners/default',
         options: {
-          cacheableOperations: ['build', 'test', 'lint', 'package', 'prepare']
-        }
-      }
+          cacheableOperations: ['build', 'test', 'lint', 'package', 'prepare'],
+        },
+      },
     },
     targetDependencies: {
-      build: [
-        {target: 'build', projects: 'dependencies'}
-      ],
-      prepare: [
-        {target: 'prepare', projects: 'dependencies'}
-      ],
-      package: [
-        {target: 'package', projects: 'dependencies'}
-      ]
+      build: [{ target: 'build', projects: 'dependencies' }],
+      prepare: [{ target: 'prepare', projects: 'dependencies' }],
+      package: [{ target: 'package', projects: 'dependencies' }],
     },
     affected: {
-      defaultBase: deduceDefaultBase()
+      defaultBase: deduceDefaultBase(),
     },
-    workspaceLayout: deduceWorkspaceLayout(repoRoot)
+    workspaceLayout: deduceWorkspaceLayout(repoRoot),
+    pluginsConfig: {
+      '@nrwl/js': {
+        analyzeSourceFiles: false,
+      },
+    },
   };
 
   fs.writeFileSync(`${repoRoot}/nx.json`, JSON.stringify(res, null, 2));
 }
 
 function deduceWorkspaceLayout(repoRoot: string) {
-  if (exists(path.join(repoRoot, "packages"))) {
+  if (exists(path.join(repoRoot, 'packages'))) {
     return undefined;
-  } else if (exists(path.join(repoRoot, "projects"))) {
-    return {libsDir: "projects", appsDir: "projects"}
+  } else if (exists(path.join(repoRoot, 'projects'))) {
+    return { libsDir: 'projects', appsDir: 'projects' };
   } else {
-    return undefined
+    return undefined;
   }
 }
 
@@ -236,15 +231,21 @@ function exists(folder: string) {
 
 function deduceDefaultBase() {
   try {
-    execSync(`git rev-parse --verify main`, {stdio: ['ignore', 'ignore', 'ignore']});
+    execSync(`git rev-parse --verify main`, {
+      stdio: ['ignore', 'ignore', 'ignore'],
+    });
     return 'main';
   } catch (e) {
     try {
-      execSync(`git rev-parse --verify dev`, {stdio: ['ignore', 'ignore', 'ignore']});
+      execSync(`git rev-parse --verify dev`, {
+        stdio: ['ignore', 'ignore', 'ignore'],
+      });
       return 'dev';
     } catch (e) {
       try {
-        execSync(`git rev-parse --verify next`, {stdio: ['ignore', 'ignore', 'ignore']});
+        execSync(`git rev-parse --verify next`, {
+          stdio: ['ignore', 'ignore', 'ignore'],
+        });
         return 'next';
       } catch (e) {
         return 'master';
@@ -255,7 +256,10 @@ function deduceDefaultBase() {
 
 function createTsConfigIfMissing(repoRoot: string) {
   if (!hasRootTsConfig(repoRoot)) {
-    fs.writeFileSync('tsconfig.base.json', JSON.stringify({compilerOptions: {}}, null, 2));
+    fs.writeFileSync(
+      'tsconfig.base.json',
+      JSON.stringify({ compilerOptions: {} }, null, 2)
+    );
   }
 }
 
@@ -280,7 +284,10 @@ function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
   json.devDependencies['@nrwl/workspace'] = 'latest';
   json.devDependencies['@nrwl/cli'] = 'latest';
   json.devDependencies['@nrwl/tao'] = 'latest';
-  if (!(json.dependencies && json.dependencies['typescript']) && !json.devDependencies['typescript']) {
+  if (
+    !(json.dependencies && json.dependencies['typescript']) &&
+    !json.devDependencies['typescript']
+  ) {
     json.devDependencies['typescript'] = '4.2.4';
   }
   if (useCloud) {
@@ -290,14 +297,14 @@ function addDepsToPackageJson(repoRoot: string, useCloud: boolean) {
 }
 
 function runInstall(repoRoot: string) {
-  cp.execSync(getPackageManagerCommand(repoRoot).install, {stdio: [0, 1, 2]});
+  cp.execSync(getPackageManagerCommand(repoRoot).install, { stdio: [0, 1, 2] });
 }
 
 function initCloud(repoRoot: string) {
   execSync(
     `${getPackageManagerCommand(repoRoot).exec} nx g @nrwl/nx-cloud:init`,
     {
-      stdio: [0, 1, 2]
+      stdio: [0, 1, 2],
     }
   );
 }
@@ -311,26 +318,26 @@ function getPackageManagerCommand(
   const packageManager = fs.existsSync(path.join(repoRoot, 'yarn.lock'))
     ? 'yarn'
     : fs.existsSync(path.join(repoRoot, 'pnpm-lock.yaml'))
-      ? 'pnpm'
-      : 'npm';
+    ? 'pnpm'
+    : 'npm';
 
   switch (packageManager) {
     case 'yarn':
       return {
         install: 'yarn',
-        exec: 'yarn'
+        exec: 'yarn',
       };
 
     case 'pnpm':
       return {
         install: 'pnpm install --no-frozen-lockfile', // explicitly disable in case of CI
-        exec: 'pnpx'
+        exec: 'pnpx',
       };
 
     case 'npm':
       return {
         install: 'npm install --legacy-peer-deps',
-        exec: 'npx'
+        exec: 'npx',
       };
   }
 }
@@ -345,8 +352,8 @@ function printFinalMessage(repoRoot) {
       } nx run-many --target=build --all --parallel" to run the build script for every project in the monorepo.`,
       `- Run it again to replay the cached computation.`,
       `- Run "nx dep-graph" to see the structure of the monorepo.`,
-      `- Learn more at https://nx.dev/migration/adding-to-monorepo`
-    ]
+      `- Learn more at https://nx.dev/migration/adding-to-monorepo`,
+    ],
   });
 }
 

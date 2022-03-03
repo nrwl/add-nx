@@ -63,7 +63,7 @@ async function main() {
   addDependency(`@nrwl/tao@${version}`);
   addDependency(`@nrwl/cli@${version}`);
   addDependency(`@nrwl/workspace@${version}`);
-  execSync(`nx g @nrwl/workspace:ng-add --preserveAngularCLILayout`, {
+  execSync(`nx g @nrwl/workspace:ng-add --preserve-angular-cli-layout`, {
     stdio: [0, 1, 2],
   });
 

@@ -24,7 +24,7 @@ export async function addNxToMonorepo() {
   const useCloud = await askAboutNxCloud();
 
   output.log({
-    title: `🧑‍🔧 Analyzing the source code and creating configuration files`,
+    title: `🧑‍🔧 Analyzing the source code and creating configuration file`,
   });
 
   const packageJsonFiles = allProjectPackageJsonFiles(repoRoot);
@@ -346,12 +346,14 @@ function printFinalMessage(repoRoot) {
   output.success({
     title: `🎉 Done!`,
     bodyLines: [
-      `- Computation caching and code change analysis are enabled.`,
+      `- Enabled Computation caching!`,
       `- Run "${
         getPackageManagerCommand(repoRoot).exec
-      } nx run-many --target=build --all --parallel" to run the build script for every project in the monorepo.`,
+      } nx run-many --target=build --all" to run the build script for every project in the monorepo.`,
       `- Run it again to replay the cached computation.`,
-      `- Run "nx dep-graph" to see the structure of the monorepo.`,
+      `- Run "${
+        getPackageManagerCommand(repoRoot).exec
+      } nx graph" to see the structure of the monorepo.`,
       `- Learn more at https://nx.dev/migration/adding-to-monorepo`,
     ],
   });

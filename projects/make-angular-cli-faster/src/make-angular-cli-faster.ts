@@ -48,7 +48,7 @@ function addNxCloud() {
             name: 'No  [Only use local computation cache]',
           },
         ],
-        default: 'no',
+        default: 'yes',
       },
     ])
     .then((a: { NxCloud: 'yes' | 'no' }) => a.NxCloud === 'yes');

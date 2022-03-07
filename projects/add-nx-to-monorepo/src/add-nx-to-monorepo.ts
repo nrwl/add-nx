@@ -70,7 +70,7 @@ async function askAboutNxCloud() {
             name: 'No',
           },
         ],
-        default: 'no',
+        default: 'yes',
       },
     ])
     .then((a: { NxCloud: 'yes' | 'no' }) => a.NxCloud === 'yes');

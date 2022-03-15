@@ -50,8 +50,7 @@ export function installDependencies(
   const json = readJsonFile(join(workspaceRoot, 'package.json'));
 
   json.devDependencies ??= {};
-  json.devDependencies['@nrwl/cli'] = version;
-  json.devDependencies['@nrwl/tao'] = version;
+  json.devDependencies['nx'] = version;
   json.devDependencies['@nrwl/workspace'] = version;
   if (useNxCloud) {
     json.devDependencies['@nrwl/nx-cloud'] = resolvePackageVersion(

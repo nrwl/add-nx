@@ -61,21 +61,19 @@ export async function determineMigration(
     );
   }
 
-  if (lt(angularVersion, '13.0.0')) {
-    // Angular < 13.0.0 should use @nrwl/workspace:ng-add
-    return {
-      packageName: '@nrwl/workspace',
-      version: latestWorkspaceVersionWithMigration,
-    };
-  }
+  const latestNxCompatibleVersion = getNxVersionBasedOnInstalledAngularVersion(
+    angularVersion,
+    majorAngularVersion
+  );
 
-  // Angular >= 13.0.0 should use @nrwl/angular:ng-add
   return {
-    packageName: '@nrwl/angular',
-    version: resolvePackageVersion(
-      '@nrwl/angular',
-      `^${majorAngularVersion}.0.0`
-    ),
+    packageName: lte(
+      latestNxCompatibleVersion,
+      latestWorkspaceVersionWithMigration
+    )
+      ? '@nrwl/workspace'
+      : '@nrwl/angular',
+    version: latestNxCompatibleVersion,
   };
 }
 
@@ -99,31 +97,10 @@ async function findAndSuggestVersionToUse(
   majorAngularVersion: number,
   userSpecifiedVersion: string
 ): Promise<MigrationDefinition> {
-  let latestNxCompatibleVersion: string;
-  if (lt(angularVersion, '13.0.0')) {
-    // use @nrwl/workspace:ng-add
-    latestNxCompatibleVersion = latestWorkspaceVersionWithMigration;
-  } else if (nxAngularVersionMap[majorAngularVersion]?.max) {
-    // use the max of the range
-    latestNxCompatibleVersion = nxAngularVersionMap[majorAngularVersion].max;
-  } else if (majorAngularVersion > latestCompatibleAngularMajorVersion) {
-    // installed Angular version is not supported yet
-    output.error({
-      title: '❌ Cannot proceed with the migration.',
-      bodyLines: [
-        `The installed Angular version "${angularVersion}" is not yet supported by Nx.`,
-        `Please keep an eye on the Nx releases for an update supporting it. We aim to support new Angular releases soon after they are released.`,
-      ],
-    });
-    process.exit(1);
-  } else {
-    // use latest
-    latestNxCompatibleVersion = resolvePackageVersion(
-      '@nrwl/angular',
-      'latest'
-    );
-  }
-
+  const latestNxCompatibleVersion = getNxVersionBasedOnInstalledAngularVersion(
+    angularVersion,
+    majorAngularVersion
+  );
   const useSuggestedVersion = await promptForVersion(latestNxCompatibleVersion);
   if (useSuggestedVersion) {
     // should use @nrwl/workspace:ng-add if the version is less than the
@@ -147,6 +124,35 @@ async function findAndSuggestVersionToUse(
     ],
   });
   process.exit(1);
+}
+
+function getNxVersionBasedOnInstalledAngularVersion(
+  angularVersion: string,
+  majorAngularVersion: number
+): string {
+  if (lt(angularVersion, '13.0.0')) {
+    // the @nrwl/angular:ng-add generator is only available for versions supporting
+    // Angular >= 13.0.0, fall back to @nrwl/workspace:ng-add
+    return latestWorkspaceVersionWithMigration;
+  }
+  if (nxAngularVersionMap[majorAngularVersion]?.max) {
+    // use the max of the range
+    return nxAngularVersionMap[majorAngularVersion].max;
+  }
+  if (majorAngularVersion > latestCompatibleAngularMajorVersion) {
+    // installed Angular version is not supported yet
+    output.error({
+      title: '❌ Cannot proceed with the migration.',
+      bodyLines: [
+        `The installed Angular version "${angularVersion}" is not yet supported by Nx.`,
+        `Please keep an eye on the Nx releases for an update supporting it. We aim to support new Angular releases soon after they are released.`,
+      ],
+    });
+    process.exit(1);
+  }
+
+  // use latest, only the last version in the map should not contain a max
+  return resolvePackageVersion('@nrwl/angular', 'latest');
 }
 
 async function promptForVersion(version: string): Promise<boolean> {

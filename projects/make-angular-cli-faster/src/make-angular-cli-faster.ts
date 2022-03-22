@@ -60,7 +60,7 @@ async function main() {
   const output = require('@nrwl/workspace/src/utils/output').output;
   output.log({ title: 'Nx initialization' });
 
-  addDependency(`@nrwl/tao@${version}`);
+  addDependency(`nx@${version}`);
   addDependency(`@nrwl/cli@${version}`);
   addDependency(`@nrwl/workspace@${version}`);
   execSync(`nx g @nrwl/workspace:ng-add --preserve-angular-cli-layout`, {
